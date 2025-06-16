@@ -16,23 +16,39 @@ const extractWebsiteData = async (urls) => {
         category: z.string().optional(),
         start_date: z.string(),
         end_date: z.string().optional(),
+        location: z.string().optional(),
+        url_site: z.string().optional(),
+        url_image: z.string().optional(),
       })
     ),
   });
 
   const prompt = `
-  Extract all public events from the page.
-  Include for each event:
-  - name
-  - description
-  - category (if available)
-  - start date
-  - end date (if available)
-  Return a full list of JSON objects.
+    Extract all public events from the page.
+
+    Include for each event:
+    - name
+    - description
+    - category (if available)
+    - start date
+    - end date (if available)
+    - location (venue, city, country if available)
+
+    If available, also include:
+    - url_site: the full URL from an <a> tag (like a "Learn More", "Register", or "Details" button)
+    - url_image: the image URL from an <img> tag that visually represents the event (like banners or thumbnails)
+
+    IMPORTANT: Do not make up links. Only use real href or src attribute values found in the HTML.
+
+    Return a full list of JSON objects.
   `;
 
   const result = await firecrawl.extract(
-    ["https://techcrunch.com/events/", "https://vc4a.com/events/?lang=es"],
+    [
+      "https://www.eventbrite.com/d/mexico--chihuahua/business/",
+      "https://mexicobusiness.events/",
+    ],
+    // ["https://techcrunch.com/events/", "https://vc4a.com/events/?lang=es"],
     {
       prompt,
       schema,

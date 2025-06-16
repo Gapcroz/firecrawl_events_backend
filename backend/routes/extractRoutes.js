@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const { extractInfo } = require("../controllers/extractController");
+const {
+  extractInfo,
+  getAllEvents,
+} = require("../controllers/extractController");
 
 router.post("/", extractInfo);
+router.get("/", getAllEvents);
 
 module.exports = router;
