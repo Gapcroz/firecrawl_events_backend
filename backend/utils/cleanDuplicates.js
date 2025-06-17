@@ -4,44 +4,56 @@ const fcEvent = require("../models/fcEvent");
 const normalizeDate = (isoDate) => {
   const d = new Date(isoDate);
   if (isNaN(d.getTime())) return null;
-  return d.toISOString().split("T")[0]; // Solo yyyy-mm-dd
+  return d.toISOString().split("T")[0]; // yyyy-mm-dd
 };
 
 const normalizeText = (text) => {
-  return text?.toLowerCase().replace(/\s+/g, " ").trim() || "";
+  return (
+    text
+      ?.toLowerCase()
+      .replace(/[^a-z0-9]/gi, "")
+      .trim() || ""
+  );
 };
 
 const normalizeUrl = (url) => {
   if (!url) return "";
-  return url.split("?")[0].toLowerCase(); // delete query string
+  return url.split("?")[0].toLowerCase();
+};
+
+const removePastEvents = async () => {
+  const today = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
+  const result = await fcEvent.deleteMany({
+    start_date: { $lt: today },
+  });
+  console.log(
+    `🗑️ Eliminados ${result.deletedCount} eventos pasados (< ${today}).`
+  );
 };
 
 const cleanDuplicateEvents = async () => {
   const allEvents = await fcEvent.find({});
   const seen = new Map();
   const toDelete = [];
-
   for (const event of allEvents) {
-    const name = normalizeText(event.name);
     const desc = normalizeText(event.description);
     const date = normalizeDate(event.start_date);
     const url = normalizeUrl(event.url_site);
-
-    const key = `${name}|${desc}|${date}|${url}`;
-
+    const image = normalizeUrl(event.url_image);
+    const key = `${desc}|${date}|${url}|${image}`;
     if (seen.has(key)) {
       toDelete.push(event._id);
     } else {
       seen.set(key, true);
     }
   }
-
   if (toDelete.length > 0) {
     const result = await fcEvent.deleteMany({ _id: { $in: toDelete } });
-    console.log(`🧹 Eliminados ${result.deletedCount} eventos duplicados.`);
+    console.log(`🧹 Eliminados ${result.deletedCount} duplicados`);
   } else {
-    console.log("✅ No hay eventos duplicados.");
+    console.log("✅ No se encontraron duplicados");
   }
+  await removePastEvents();
 };
 
 module.exports = cleanDuplicateEvents;
