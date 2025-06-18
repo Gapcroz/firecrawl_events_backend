@@ -1,13 +1,13 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const cors = require("cors");
 const connectDB = require("./backend/config/db");
 const cleanDuplicateEvents = require("./backend/utils/cleanDuplicates");
 
 dotenv.config();
-
 const app = express();
+app.use(cors()); 
 app.use(express.json());
-
 
 (async () => {
   try {
@@ -16,6 +16,10 @@ app.use(express.json());
 
     app.use("/api/users", require("./backend/routes/userRoutes"));
     app.use("/api/extract", require("./backend/routes/extractRoutes"));
+    app.use(
+      "/api/custom-events",
+      require("./backend/routes/customEventRoutes")
+    );
 
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () =>

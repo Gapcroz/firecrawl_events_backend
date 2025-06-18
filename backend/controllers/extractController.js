@@ -31,9 +31,11 @@ const extractInfo = async (req, res) => {
       }
     }
 
+    let savedEvents = [];
+
     if (eventsToInsert.length > 0) {
-      await fcEvent.insertMany(eventsToInsert);
-      console.log(`${eventsToInsert.length} eventos nuevos guardados.`);
+      savedEvents = await fcEvent.insertMany(eventsToInsert);
+      console.log(`${savedEvents.length} eventos nuevos guardados.`);
     } else {
       console.log("No se encontraron eventos nuevos para guardar.");
     }
@@ -41,7 +43,7 @@ const extractInfo = async (req, res) => {
       message: "Eventos extraídos y guardados exitosamente.",
       events: savedEvents,
     });
-    console.log("Eventos guardados");
+
   } catch (error) {
     console.error("Error al extraer o guardar datos:", error);
     res.status(500).json({ error: "Error al extraer datos con Firecrawl" });

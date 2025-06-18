@@ -44,11 +44,11 @@ const extractWebsiteData = async (urls) => {
   `;
 
   const result = await firecrawl.extract(
-    [
-      "https://www.eventbrite.com/d/mexico--chihuahua/business/",
-      "https://mexicobusiness.events/",
-    ],
-    // ["https://techcrunch.com/events/", "https://vc4a.com/events/?lang=es"],
+    // [
+    //   "https://www.eventbrite.com/d/mexico--chihuahua/business/",
+    //   "https://mexicobusiness.events/",
+    // ],
+    ["https://techcrunch.com/events/", "https://vc4a.com/events/?lang=es"],
     {
       prompt,
       schema,
