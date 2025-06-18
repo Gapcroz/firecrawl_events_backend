@@ -10,29 +10,23 @@ const extractInfo = async (req, res) => {
   try {
     const data = await extractWebsiteData(urls);
     console.log("Datos extraídos:", data);
-    // Validación básica
     if (!data || !data.data || !Array.isArray(data.data.events)) {
       return res
         .status(400)
         .json({ error: "No se encontraron eventos válidos." });
     }
-    // Guardar en MongoDB
     const eventsToInsert = [];
-
     for (const event of data.data.events) {
       const alreadyExists = await fcEvent.findOne({
         name: event.name,
         url_site: event.url_site,
         start_date: event.start_date,
       });
-
       if (!alreadyExists) {
         eventsToInsert.push(event);
       }
     }
-
     let savedEvents = [];
-
     if (eventsToInsert.length > 0) {
       savedEvents = await fcEvent.insertMany(eventsToInsert);
       console.log(`${savedEvents.length} eventos nuevos guardados.`);

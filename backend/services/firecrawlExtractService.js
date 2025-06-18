@@ -7,7 +7,7 @@ const firecrawl = new FirecrawlApp({
   apiKey: process.env.FIRECRAWL_API_KEY,
 });
 
-const extractWebsiteData = async (urls) => {
+const extractWebsiteData = async (urls = []) => {
   const schema = z.object({
     events: z.array(
       z.object({
@@ -43,17 +43,22 @@ const extractWebsiteData = async (urls) => {
     Return a full list of JSON objects.
   `;
 
+  // Si no se pasan URLs, usa unas por defecto
+  const defaultUrls = [
+    "https://techcrunch.com/events/",
+    "https://vc4a.com/events/?lang=es",
+  ];
+
+  const urlsToUse = urls.length > 0 ? urls : defaultUrls;
+
   const result = await firecrawl.extract(
-    // [
-    //   "https://www.eventbrite.com/d/mexico--chihuahua/business/",
-    //   "https://mexicobusiness.events/",
-    // ],
-    ["https://techcrunch.com/events/", "https://vc4a.com/events/?lang=es"],
+    urlsToUse,
     {
       prompt,
       schema,
     }
   );
+
   return result;
 };
 

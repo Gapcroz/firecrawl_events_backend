@@ -13,7 +13,6 @@ const createCustomEvent = async (req, res) => {
 
 const getCustomEvents = async (req, res) => {
   try {
-    // Puedes agregar lógica para diferenciar eventos creados manualmente, si lo deseas
     const events = await fcEvent.find({});
     res.status(200).json({ events });
   } catch (err) {
