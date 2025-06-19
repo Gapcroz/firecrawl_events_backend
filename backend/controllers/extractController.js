@@ -22,8 +22,12 @@ const extractInfo = async (req, res) => {
         url_site: event.url_site,
         start_date: event.start_date,
       });
+
       if (!alreadyExists) {
-        eventsToInsert.push(event);
+        eventsToInsert.push({
+          ...event,
+          status: "active", // ✅ aseguramos que los eventos extraídos estén visibles
+        });
       }
     }
     let savedEvents = [];
