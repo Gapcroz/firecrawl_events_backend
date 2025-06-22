@@ -2,11 +2,39 @@ const fcEvent = require("../models/fcEvent");
 
 const createCustomEvent = async (req, res) => {
   try {
-    const event = new fcEvent(req.body);
-    const saved = await event.save();
+    const {
+      name,
+      description,
+      category,
+      start_date,
+      end_date,
+      location,
+      url_site,
+      url_image: urlFromBody,
+    } = req.body;
+
+    // Usa imagen del archivo si fue subida, si no usa la URL del form
+    let finalImageUrl = urlFromBody;
+    if (req.file) {
+      finalImageUrl = `/uploads/${req.file.filename}`;
+    }
+
+    const newEvent = new fcEvent({
+      name,
+      description,
+      category,
+      start_date,
+      end_date,
+      location,
+      url_site,
+      url_image: finalImageUrl,
+      status: "inactive", // default
+    });
+
+    const saved = await newEvent.save();
     res.status(201).json(saved);
   } catch (err) {
-    console.error("Error al guardar evento personalizado:", err);
+    console.error("❌ Error al guardar evento personalizado:", err);
     res.status(500).json({ error: "Error al guardar evento" });
   }
 };
