@@ -26,6 +26,8 @@ const extractWebsiteData = async (urls = []) => {
   const prompt = `
     Extract all public events from the page.
 
+    If the page includes pagination (such as "Next", page numbers, or "Load more" buttons), follow those links and extract events from the first 5 accessible pages.
+
     Include for each event:
     - name
     - description
@@ -38,9 +40,10 @@ const extractWebsiteData = async (urls = []) => {
     - url_site: the full URL from an <a> tag (like a "Learn More", "Register", or "Details" button)
     - url_image: the image URL from an <img> tag that visually represents the event (like banners or thumbnails)
 
-    IMPORTANT: Do not make up links. Only use real href or src attribute values found in the HTML.
-
-    Return a full list of JSON objects.
+    IMPORTANT:
+    - Do NOT make up data.
+    - Only use real href/src attribute values from the HTML.
+    - Return a full list of JSON objects across all pages, not just the first page.
   `;
 
   // Si no se pasan URLs, usa unas por defecto
@@ -51,13 +54,10 @@ const extractWebsiteData = async (urls = []) => {
 
   const urlsToUse = urls.length > 0 ? urls : defaultUrls;
 
-  const result = await firecrawl.extract(
-    urlsToUse,
-    {
-      prompt,
-      schema,
-    }
-  );
+  const result = await firecrawl.extract(urlsToUse, {
+    prompt,
+    schema,
+  });
 
   return result;
 };
