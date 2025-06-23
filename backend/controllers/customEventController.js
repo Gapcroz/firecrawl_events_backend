@@ -1,4 +1,5 @@
 const fcEvent = require("../models/fcEvent");
+require("dotenv").config();
 
 const createCustomEvent = async (req, res) => {
   try {
@@ -16,7 +17,8 @@ const createCustomEvent = async (req, res) => {
     // Usa imagen del archivo si fue subida, si no usa la URL del form
     let finalImageUrl = urlFromBody;
     if (req.file) {
-      finalImageUrl = `/uploads/${req.file.filename}`;
+      finalImageUrl = `${process.env.SERVER_URL}/uploads/${req.file.filename}`;
+
     }
 
     const newEvent = new fcEvent({
