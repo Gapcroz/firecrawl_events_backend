@@ -10,6 +10,11 @@ const fcEventSchema = new mongoose.Schema({
   location: { type: String },
   url_site: { type: String },
   url_image: { type: String },
+  status: {
+    type: String,
+    enum: ["active", "inactive"],
+    default: "inactive",
+  },
 });
 
 const fcEvent = mongoose.model("fcEvent", fcEventSchema);

@@ -1,4 +1,6 @@
 const { extractWebsiteData } = require("../services/firecrawlExtractService");
+const cleanDuplicateEvents = require("../utils/cleanDuplicates");
+
 const fcEvent = require("../models/fcEvent");
 
 const extractInfo = async (req, res) => {
@@ -8,6 +10,7 @@ const extractInfo = async (req, res) => {
   }
 
   try {
+    
     const data = await extractWebsiteData(urls);
     console.log("Datos extraídos:", data);
     if (!data || !data.data || !Array.isArray(data.data.events)) {
@@ -22,13 +25,18 @@ const extractInfo = async (req, res) => {
         url_site: event.url_site,
         start_date: event.start_date,
       });
+
       if (!alreadyExists) {
-        eventsToInsert.push(event);
+        eventsToInsert.push({
+          ...event,
+          status: "active", // ✅ aseguramos que los eventos extraídos estén visibles
+        });
       }
     }
     let savedEvents = [];
     if (eventsToInsert.length > 0) {
       savedEvents = await fcEvent.insertMany(eventsToInsert);
+      await cleanDuplicateEvents();
       console.log(`${savedEvents.length} eventos nuevos guardados.`);
     } else {
       console.log("No se encontraron eventos nuevos para guardar.");
