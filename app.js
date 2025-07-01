@@ -1,9 +1,16 @@
 const express = require("express");
+const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./backend/config/db");
 const cleanDuplicateEvents = require("./backend/utils/cleanDuplicates");
+
+const uploadDir = path.join(__dirname, "uploads");
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
 
 dotenv.config();
 const app = express();
