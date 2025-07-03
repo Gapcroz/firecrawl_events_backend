@@ -18,7 +18,6 @@ const createCustomEvent = async (req, res) => {
     let finalImageUrl = urlFromBody;
     if (req.file) {
       finalImageUrl = `${process.env.SERVER_URL}/uploads/${req.file.filename}`;
-
     }
 
     const newEvent = new fcEvent({
@@ -43,7 +42,7 @@ const createCustomEvent = async (req, res) => {
 
 const getCustomEvents = async (req, res) => {
   try {
-    const events = await fcEvent.find({});
+    const events = await fcEvent.find({}).sort({ start_date: 1 });
     res.status(200).json({ events });
   } catch (err) {
     console.error("Error al obtener eventos personalizados:", err);
@@ -85,9 +84,26 @@ const updateEventStatus = async (req, res) => {
   }
 };
 
+const deleteEvent = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deleted = await fcEvent.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ error: "Evento no encontrado." });
+    }
+
+    res.json({ message: "Evento eliminado exitosamente." });
+  } catch (err) {
+    console.error("❌ Error al eliminar evento:", err);
+    res.status(500).json({ error: "Error al eliminar evento." });
+  }
+};
+
 module.exports = {
   createCustomEvent,
   getCustomEvents,
   getPendingEvents,
   updateEventStatus,
+  deleteEvent,
 };
