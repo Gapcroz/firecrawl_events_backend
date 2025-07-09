@@ -1,4 +1,5 @@
 const fcEvent = require("../models/fcEvent");
+const cloudinary = require("../config/cloudinary");
 require("dotenv").config();
 
 const createCustomEvent = async (req, res) => {
@@ -14,10 +15,10 @@ const createCustomEvent = async (req, res) => {
       url_image: urlFromBody,
     } = req.body;
 
-    // Usa imagen del archivo si fue subida, si no usa la URL del form
+    // Use an image if there isn't a URL provided
     let finalImageUrl = urlFromBody;
-    if (req.file) {
-      finalImageUrl = `${process.env.SERVER_URL}/uploads/${req.file.filename}`;
+    if (req.file && req.file.path) {
+      finalImageUrl = req.file.path; // URL Cloudinary
     }
 
     const newEvent = new fcEvent({
@@ -88,12 +89,26 @@ const deleteEvent = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const deleted = await fcEvent.findByIdAndDelete(id);
-    if (!deleted) {
+    const event = await fcEvent.findById(id);
+    if (!event) {
       return res.status(404).json({ error: "Evento no encontrado." });
     }
 
-    res.json({ message: "Evento eliminado exitosamente." });
+    // Si es imagen de Cloudinary, intenta borrar
+    if (event.url_image && event.url_image.includes("res.cloudinary.com")) {
+      const urlParts = event.url_image.split("/");
+      const fileWithExt = urlParts[urlParts.length - 1];
+      const fileName = fileWithExt.replace(/\.(jpg|jpeg|png)$/, ""); // Quita extensión
+      const publicId = `events/${fileName}`;
+
+      await cloudinary.uploader.destroy(publicId, {
+        resource_type: "image",
+      });
+    }
+
+    await fcEvent.findByIdAndDelete(id);
+
+    res.json({ message: "Evento e imagen eliminados exitosamente." });
   } catch (err) {
     console.error("❌ Error al eliminar evento:", err);
     res.status(500).json({ error: "Error al eliminar evento." });

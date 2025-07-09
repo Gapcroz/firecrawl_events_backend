@@ -3,10 +3,31 @@ const fcEvent = require("../models/fcEvent");
 const { normalizeText, normalizeDate, normalizeUrl } = require("./normalize"); // extrae funciones reutilizables aquí
 
 const removePastEvents = async () => {
-  const today = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
+  const today = new Date().toISOString().split("T")[0];
+
+  const pastEvents = await fcEvent.find({
+    start_date: { $lt: today },
+  });
+
+  for (const event of pastEvents) {
+    // Delete image of cloudinary if it's valid
+    if (event.url_image && event.url_image.includes("res.cloudinary.com")) {
+      try {
+        const publicId = event.url_image.split("/").pop().split(".")[0];
+        await cloudinary.uploader.destroy(`events/${publicId}`);
+      } catch (err) {
+        console.error(
+          `⚠️ No se pudo eliminar imagen Cloudinary para evento ${event._id}:`,
+          err.message
+        );
+      }
+    }
+  }
+
   const result = await fcEvent.deleteMany({
     start_date: { $lt: today },
   });
+
   console.log(
     `🗑️ Eliminados ${result.deletedCount} eventos pasados (< ${today}).`
   );
