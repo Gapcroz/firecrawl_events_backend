@@ -1,4 +1,5 @@
 const firecrawlModule = require("@mendable/firecrawl-js");
+const axios = require("axios");
 const { z } = require("zod");
 
 const FirecrawlApp = firecrawlModule.default;
@@ -7,7 +8,28 @@ const firecrawl = new FirecrawlApp({
   apiKey: process.env.FIRECRAWL_API_KEY,
 });
 
+const fetchUrlsFromUmbraco = async () => {
+  try {
+    const response = await axios.get(
+      "http://startupqaf.duckdns.org/api/umbraco?path=sites/opportunities"
+    );
+
+    const items = response.data?.properties?.urlScraping?.items || [];
+
+    const urls = items
+      .map((item) => item.content?.properties?.stringText)
+      .filter(Boolean);
+
+    return urls;
+  } catch (err) {
+    console.error("❌ Error al obtener URLs desde Umbraco:", err.message);
+    return [];
+  }
+};
+
 const extractWebsiteData = async (urls = []) => {
+  const finalUrls = urls.length > 0 ? urls : await fetchUrlsFromUmbraco();
+
   const schema = z.object({
     events: z.array(
       z.object({
@@ -46,15 +68,7 @@ const extractWebsiteData = async (urls = []) => {
     - Return a full list of JSON objects across all pages, not just the first page.
   `;
 
-  // Si no se pasan URLs, usa unas por defecto
-  const defaultUrls = [
-    "https://techcrunch.com/events/",
-    "https://vc4a.com/events/?lang=es",
-  ];
-
-  const urlsToUse = urls.length > 0 ? urls : defaultUrls;
-
-  const result = await firecrawl.extract(urlsToUse, {
+  const result = await firecrawl.extract(finalUrls, {
     prompt,
     schema,
   });

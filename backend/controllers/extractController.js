@@ -4,9 +4,10 @@ const cleanDuplicateEvents = require("../utils/cleanDuplicates");
 const fcEvent = require("../models/fcEvent");
 
 const extractInfo = async (req, res) => {
-  const { urls } = req.body;
-  if (!urls || !Array.isArray(urls)) {
-    return res.status(400).json({ error: "Se requiere un arreglo de URLs." });
+  let urls = [];
+
+  if (req.method === "POST") {
+    urls = req.body.urls || [];
   }
 
   try {

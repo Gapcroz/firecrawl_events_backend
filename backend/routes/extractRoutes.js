@@ -5,7 +5,7 @@ const {
   getAllEvents,
 } = require("../controllers/extractController");
 
-router.post("/", extractInfo);
+router.get("/", extractInfo);
 router.get("/", getAllEvents);
 
 module.exports = router;
