@@ -11,7 +11,7 @@ const firecrawl = new FirecrawlApp({
 const fetchUrlsFromUmbraco = async () => {
   try {
     const response = await axios.get(
-      "http://startupqaf.duckdns.org/api/umbraco?path=sites/opportunities"
+      `${process.env.UMBRACO_URL_OPPORTUNITIES}`
     );
 
     const items = response.data?.properties?.urlScraping?.items || [];
