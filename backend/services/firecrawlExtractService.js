@@ -61,6 +61,7 @@ const extractWebsiteData = async (urls = []) => {
     If available, also include:
     - url_site: the full URL from an <a> tag (like a "Learn More", "Register", or "Details" button)
     - url_image: the image URL from an <img> tag that visually represents the event (like banners or thumbnails)
+    - category: the category of the event isn't available choose a title that best describes the event for the category.
 
     IMPORTANT:
     - Do NOT make up data.
@@ -73,6 +74,7 @@ const extractWebsiteData = async (urls = []) => {
     schema,
   });
 
+  console.log("✅ Data extracted successfully:", result);
   return result;
 };
 
