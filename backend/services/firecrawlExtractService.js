@@ -74,7 +74,6 @@ const extractWebsiteData = async (urls = []) => {
     schema,
   });
 
-  console.log("✅ Data extracted successfully:", result);
   return result;
 };
 
